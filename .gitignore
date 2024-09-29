@@ -4,3 +4,5 @@ work/csv_files
 work/features
 .DS_Store
 venv/
+work/features/
+work/csv_files/
