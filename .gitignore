@@ -9,3 +9,5 @@ work/csv_files/
 work/all_data.csv
 work/importance_list.csv
 __pycache__/
+work/datasets/cicids/
+work/datasets/wine/
