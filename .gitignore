@@ -8,3 +8,4 @@ work/features/
 work/csv_files/
 work/all_data.csv
 work/importance_list.csv
+__pycache__/
