@@ -69,36 +69,39 @@ def process_csv(csv_file, main_labels, target_column, normal_target, numerical_c
 
     X_df, y_df, df = get_anomaly_X_y_from_csv(csv_file, main_labels, target_column, normal_target, output_folder)
 
-    # Compute feature importances
-    forest = RandomForestRegressor(n_estimators=250, random_state=0)
-    forest.fit(X_df, y_df)
-    importances = forest.feature_importances_
-    label = csv_file.split(".")[0]
+    try:
+        # Compute feature importances
+        forest = RandomForestRegressor(n_estimators=250, random_state=0)
+        forest.fit(X_df, y_df)
+        importances = forest.feature_importances_
+        label = csv_file.split(".")[0]
 
-    # Prepare important features DataFrame
-    refclasscol = list(df.columns.values)
-    impor_bars = pd.DataFrame({'Features': refclasscol[0:20], 'importance': importances[0:20]})
-    impor_bars = impor_bars.sort_values('importance', ascending=False)
-    important_features = impor_bars['Features'].to_list()[:5]
-    impor_bars = impor_bars.set_index('Features')
+        # Prepare important features DataFrame
+        refclasscol = list(df.columns.values)
+        impor_bars = pd.DataFrame({'Features': refclasscol[0:20], 'importance': importances[0:20]})
+        impor_bars = impor_bars.sort_values('importance', ascending=False)
+        important_features = impor_bars['Features'].to_list()[:5]
+        impor_bars = impor_bars.set_index('Features')
 
-    # Scale numerical columns
-    X_scaled_df = X_df.copy()
-    X_scaled_df[numerical_columns] = scaler.transform(X_scaled_df[numerical_columns])
+        # Scale numerical columns
+        X_scaled_df = X_df.copy()
+        X_scaled_df[numerical_columns] = scaler.transform(X_scaled_df[numerical_columns])
 
-    # Fit SVC if there are samples for the class
-    svm = SVC()
-    column_indices = df.columns.get_indexer(important_features)
-    # print('column_indices', column_indices, df.columns)
-    X_train_class = df.iloc[:, column_indices]
-    y_train_class = y_df
+        # Fit SVC if there are samples for the class
+        svm = SVC()
+        column_indices = df.columns.get_indexer(important_features)
+        # print('column_indices', column_indices, df.columns)
+        X_train_class = df.iloc[:, column_indices]
+        y_train_class = y_df
 
-    if len(y_train_class) > 0:
-        svm.fit(X_train_class, y_train_class)
-    else:
-        print(f'No data for {label}')
+        if len(y_train_class) > 0:
+            svm.fit(X_train_class, y_train_class)
+        else:
+            print(f'No data for {label}')
 
-    return label, important_features, svm, impor_bars
+        return label, important_features, svm, impor_bars
+    except ValueError as e:
+        print(f'csv_file: {csv_file}, error: {e}')
 
 # Preprocessing
 
