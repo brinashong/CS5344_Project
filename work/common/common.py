@@ -1,3 +1,4 @@
+import wandb
 import numpy as np
 import os
 import random
@@ -11,6 +12,10 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import OneHotEncoder, StandardScaler, LabelEncoder
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 from sklearn.svm import SVC
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, VotingClassifier
+from sklearn.neighbors import KNeighborsClassifier
 
 def evaluate(y_test, predictions, heading='-----Evaluation-----'):
     print(heading)
@@ -25,9 +30,12 @@ def evaluate(y_test, predictions, heading='-----Evaluation-----'):
     plt.ylabel("Actual")
     plt.show()
     
+    cr = classification_report(y_test, predictions, output_dict=True)
     print("\nClassification Report:")
-    print(classification_report(y_test, predictions))
-    print("Accuracy:", accuracy_score(y_test, predictions))
+    print(cr)
+    acc = accuracy_score(y_test, predictions)
+    print("Accuracy:", acc)
+    return (cm, cr, acc)
 
 def remove_files_from_directory(directory):
     # Get all files in the directory
@@ -89,17 +97,34 @@ def process_csv(csv_file, main_labels, target_column, normal_target, numerical_c
 
         # Fit SVC if there are samples for the class
         svm = SVC()
+        knn = KNeighborsClassifier(n_neighbors=5)
+        decision_tree = DecisionTreeClassifier()
+        random_forest = RandomForestClassifier(n_estimators=100, random_state=42)
+        logistic_regression = LogisticRegression(max_iter=1000)
+        gradient_boosting = GradientBoostingClassifier(n_estimators=100, random_state=42)
+        voting_clf = VotingClassifier(estimators=[
+            ('svm', SVC()),
+            ('knn', knn),
+            ('dt', decision_tree),
+            ('rf', random_forest),
+            ('lr', logistic_regression),
+            ('gb', gradient_boosting)
+            ], voting='hard')
+        
         column_indices = df.columns.get_indexer(important_features)
         # print('column_indices', column_indices, df.columns)
         X_train_class = df.iloc[:, column_indices]
+        X_train_class_scaled = X_scaled_df.iloc[:, column_indices]
         y_train_class = y_df
 
         if len(y_train_class) > 0:
-            svm.fit(X_train_class, y_train_class)
+            # svm.fit(X_train_class, y_train_class)
+            svm.fit(X_train_class_scaled, y_train_class)
+            voting_clf.fit(X_train_class_scaled, y_train_class)
         else:
             print(f'No data for {label}')
 
-        return label, important_features, svm, impor_bars
+        return label, important_features, svm, impor_bars, voting_clf
     except ValueError as e:
         print(f'csv_file: {csv_file}, error: {e}')
 
@@ -196,3 +221,36 @@ def show_feature_importance(impor_bars, label, feature_folder):
     plt.savefig(os.path.join(feature_folder, label+".pdf"),bbox_inches='tight', format = 'pdf')
     plt.tight_layout()
     plt.show()
+
+def wandb_log(conf_matrix, class_report, acc_score):
+    wandb.log({
+        "Accuracy Score": acc_score
+    })
+        
+    # Create a table for classification metrics
+    class_report_table = wandb.Table(columns=["class", "precision", "recall", "f1-score", "support"])
+    
+    # Populate the table
+    for class_name, metrics in class_report.items():
+        if class_name not in ['accuracy', 'macro avg', 'weighted avg']:  # Skip overall avg metrics
+            class_report_table.add_data(
+                class_name, 
+                metrics["precision"], 
+                metrics["recall"], 
+                metrics["f1-score"], 
+                metrics["support"]
+            )
+    
+    # Log the table to WandB
+    wandb.log({"Classification Report": class_report_table})
+    
+    # You can also log the metrics separately if needed (for overall comparison/graphing)
+    wandb.log({
+        "precision_avg": class_report["weighted avg"]["precision"],
+        "recall_avg": class_report["weighted avg"]["recall"],
+        "f1-score_avg": class_report["weighted avg"]["f1-score"]
+    })
+
+    # Convert confusion matrix into a DataFrame for better clarity
+    conf_df = pd.DataFrame(conf_matrix)
+    wandb.log({"Confusion Matrix": wandb.Table(dataframe=conf_df)})
