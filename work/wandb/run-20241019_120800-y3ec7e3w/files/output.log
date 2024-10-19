@@ -1,0 +1,24 @@
+Train operation time: =  1365.8423941135406 seconds
+
+Model: SVC
+Confusion Matrix:
+[[  26    0    0  336    1    0   30    0    0    0]
+ [   0    0    0  316   28    0    5   11    0    0]
+ [   0    0   18 2197   96   13   18   28    0    0]
+ [   1    0    4 6218  429   18   68   34    0    0]
+ [   1    0    0  429 2796    0   80  264    0    0]
+ [   0    0    3  145   42 7884    0    5    0    0]
+ [  10    0    0  237 1813    8 8969  132    0    0]
+ [   0    0    1  675  334    3    9 1076    0    0]
+ [   0    0    0    0  144    0    0   89    0    0]
+ [   0    0    1   21    2    0    0    1    0    0]]
+/Users/suyeetan/Downloads/CS5344_Project/venv/lib/python3.12/site-packages/sklearn/metrics/_classification.py:1531: UndefinedMetricWarning: Precision is ill-defined and being set to 0.0 in labels with no predicted samples. Use `zero_division` parameter to control this behavior.
+  _warn_prf(average, modifier, f"{metric.capitalize()} is", len(result))
+/Users/suyeetan/Downloads/CS5344_Project/venv/lib/python3.12/site-packages/sklearn/metrics/_classification.py:1531: UndefinedMetricWarning: Precision is ill-defined and being set to 0.0 in labels with no predicted samples. Use `zero_division` parameter to control this behavior.
+  _warn_prf(average, modifier, f"{metric.capitalize()} is", len(result))
+/Users/suyeetan/Downloads/CS5344_Project/venv/lib/python3.12/site-packages/sklearn/metrics/_classification.py:1531: UndefinedMetricWarning: Precision is ill-defined and being set to 0.0 in labels with no predicted samples. Use `zero_division` parameter to control this behavior.
+  _warn_prf(average, modifier, f"{metric.capitalize()} is", len(result))
+
+Classification Report:
+{'0': {'precision': 0.6842105263157895, 'recall': 0.06615776081424936, 'f1-score': 0.12064965197215777, 'support': 393.0}, '1': {'precision': 0.0, 'recall': 0.0, 'f1-score': 0.0, 'support': 360.0}, '2': {'precision': 0.6666666666666666, 'recall': 0.007594936708860759, 'f1-score': 0.015018773466833541, 'support': 2370.0}, '3': {'precision': 0.5880461509362588, 'recall': 0.9181925575900768, 'f1-score': 0.7169376225066297, 'support': 6772.0}, '4': {'precision': 0.49182058047493404, 'recall': 0.7831932773109244, 'f1-score': 0.6042139384116694, 'support': 3570.0}, '5': {'precision': 0.9947009841029523, 'recall': 0.9758633494244338, 'f1-score': 0.9851921274601687, 'support': 8079.0}, '6': {'precision': 0.977121690815993, 'recall': 0.80302623332438, 'f1-score': 0.8815608413603303, 'support': 11169.0}, '7': {'precision': 0.6560975609756098, 'recall': 0.5128693994280267, 'f1-score': 0.5757089352594971, 'support': 2098.0}, '8': {'precision': 0.0, 'recall': 0.0, 'f1-score': 0.0, 'support': 233.0}, '9': {'precision': 0.0, 'recall': 0.0, 'f1-score': 0.0, 'support': 25.0}, 'accuracy': 0.7695400496164704, 'macro avg': {'precision': 0.5058664160288204, 'recall': 0.40668975146009523, 'f1-score': 0.3899281890437286, 'support': 35069.0}, 'weighted avg': {'precision': 0.795947898186329, 'recall': 0.7695400496164704, 'f1-score': 0.7444897980314427, 'support': 35069.0}}
+Accuracy: 0.7695400496164704
