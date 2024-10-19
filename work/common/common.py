@@ -18,21 +18,25 @@ from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier,
 from sklearn.neighbors import KNeighborsClassifier
 
 def evaluate(y_test, predictions, heading='-----Evaluation-----'):
+    fig, axes = plt.subplots(1, 2, figsize=(12, 6))  # Adjust figure size as needed
     print(heading)
-    print("Confusion Matrix:")
+
+    axes[0].set_title('Confusion Matrix')
     cm = confusion_matrix(y_test, predictions)
-    print(cm)
-    plt.figure(figsize=(15,10))
     categories = np.unique(y_test)
     df_cm = pd.DataFrame(cm, index = [i for i in categories], columns = [i for i in categories])
-    sns.heatmap(df_cm,annot=True,cmap='Reds')
-    plt.xlabel("Predicted")
-    plt.ylabel("Actual")
-    plt.show()
+    sns.heatmap(df_cm, annot=True, cmap='Reds', ax=axes[0])
+    axes[0].set_xlabel("Predicted")
+    axes[0].set_ylabel("Actual")
     
+    axes[1].set_title('Classification Report')
     cr = classification_report(y_test, predictions, output_dict=True)
-    print("\nClassification Report:")
-    print(cr)
+    sns.heatmap(pd.DataFrame(cr).iloc[:-1, :].T, annot=True, ax=axes[1], fmt='.3f')
+
+    # Display the subplots
+    plt.tight_layout()  # Adjust layout to prevent overlap
+    plt.show()
+
     acc = accuracy_score(y_test, predictions)
     print("Accuracy:", acc)
     return (cm, cr, acc)
