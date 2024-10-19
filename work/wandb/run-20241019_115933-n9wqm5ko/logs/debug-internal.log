@@ -1,0 +1,17 @@
+{"time":"2024-10-19T11:59:33.664794+08:00","level":"INFO","msg":"using version","core version":"0.18.5"}
+{"time":"2024-10-19T11:59:33.664842+08:00","level":"INFO","msg":"created symlink","path":"/Users/suyeetan/Downloads/CS5344_Project/work/wandb/run-20241019_115933-n9wqm5ko/logs/debug-core.log"}
+{"time":"2024-10-19T11:59:33.786929+08:00","level":"INFO","msg":"created new stream","id":"n9wqm5ko"}
+{"time":"2024-10-19T11:59:33.786964+08:00","level":"INFO","msg":"stream: started","id":"n9wqm5ko"}
+{"time":"2024-10-19T11:59:33.786999+08:00","level":"INFO","msg":"sender: started","stream_id":"n9wqm5ko"}
+{"time":"2024-10-19T11:59:33.787008+08:00","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"n9wqm5ko"}}
+{"time":"2024-10-19T11:59:33.787026+08:00","level":"INFO","msg":"handler: started","stream_id":{"value":"n9wqm5ko"}}
+{"time":"2024-10-19T11:59:35.360619+08:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2024-10-19T11:59:51.892519+08:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2024-10-19T11:59:51.893427+08:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2024-10-19T11:59:52.899031+08:00","level":"INFO","msg":"handler: operation stats","stats":{"operations":[{"desc":"uploading artifact run-n9wqm5ko-ClassificationReport","runtime_seconds":1.330387834},{"desc":"uploading artifact run-n9wqm5ko-ConfusionMatrix","runtime_seconds":1.02329075,"subtasks":[{"desc":"Confusion Matrix.table.json","runtime_seconds":0.012321125,"progress":"1.5KB/1.5KB"}]},{"desc":"uploading media/table/Confusion Matrix_3_c372cd518abb629692db.table.json","runtime_seconds":0.727485792,"progress":"437B/437B"},{"desc":"uploading config.yaml","runtime_seconds":0.444385625,"progress":"522B/522B"},{"desc":"uploading output.log","runtime_seconds":0.4443715,"progress":"2.2KB/2.2KB"}],"total_operations":5}}
+{"time":"2024-10-19T11:59:56.386993+08:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2024-10-19T11:59:57.745859+08:00","level":"INFO","msg":"stream: closing","id":"n9wqm5ko"}
+{"time":"2024-10-19T11:59:57.745896+08:00","level":"INFO","msg":"handler: closed","stream_id":{"value":"n9wqm5ko"}}
+{"time":"2024-10-19T11:59:57.745934+08:00","level":"INFO","msg":"sender: closed","stream_id":"n9wqm5ko"}
+{"time":"2024-10-19T11:59:57.745928+08:00","level":"INFO","msg":"writer: Close: closed","stream_id":{"value":"n9wqm5ko"}}
+{"time":"2024-10-19T11:59:57.746151+08:00","level":"INFO","msg":"stream: closed","id":"n9wqm5ko"}

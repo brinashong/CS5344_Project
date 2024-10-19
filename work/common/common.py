@@ -85,7 +85,7 @@ def process_csv(csv_file, main_labels, target_column, normal_target, numerical_c
         label = csv_file.split(".")[0]
 
         # Prepare important features DataFrame
-        refclasscol = list(df.columns.values)
+        refclasscol = list(X_df.columns.values)
         impor_bars = pd.DataFrame({'Features': refclasscol[0:20], 'importance': importances[0:20]})
         impor_bars = impor_bars.sort_values('importance', ascending=False)
         important_features = impor_bars['Features'].to_list()[:5]
@@ -127,6 +127,60 @@ def process_csv(csv_file, main_labels, target_column, normal_target, numerical_c
         return label, important_features, svm, impor_bars, voting_clf
     except ValueError as e:
         print(f'csv_file: {csv_file}, error: {e}')
+        raise Exception()
+
+def create_dataset_for_label(label, name, benign, abnormal_type_dict, benign_ratio, min_benign_samples, all_df, target_index, TARGET_COLUMN, NORMAL_TARGET, OUTPUT_FOLDER, main_labels):
+    a, b = 0, 0  # Track abnormal and benign sample counts
+    
+    # Open the output file for writing
+    output_path = os.path.join(OUTPUT_FOLDER, f"{name}.csv")
+    with open(output_path, "w") as ths:
+        ths.write(','.join(main_labels) + "\n")
+        
+        # Calculate the number of benign samples based on the fixed ratio
+        abnormal_count = abnormal_type_dict[label]
+        benign_num = max(min(int(abnormal_count * benign_ratio), benign), min_benign_samples)
+        
+        # Collect normal (benign) rows and abnormal rows
+        benign_rows = []
+        abnormal_rows = []
+
+        # Read all_data.csv line by line and collect rows
+        with open("all_data.csv", "r") as file:
+            for i, line in enumerate(file):
+                if i == 0:
+                    continue  # Skip the header row
+                k = line.strip().split(",")  # Strip newline and split the line
+                
+                # Collect normal rows
+                if int(k[target_index]) == NORMAL_TARGET:
+                    benign_rows.append(line)
+                
+                # Collect abnormal rows that match the current label
+                elif int(k[target_index]) == label:
+                    abnormal_rows.append(line)
+
+        # Randomly sample benign rows
+        if len(benign_rows) > benign_num:
+            benign_rows = random.sample(benign_rows, benign_num)
+        else:
+            benign_rows = random.sample(benign_rows, len(benign_rows))  # Shuffle if fewer than required
+
+        # Concatenate benign and abnormal rows
+        combined_rows = benign_rows + abnormal_rows
+        
+        # Shuffle the combined rows
+        random.shuffle(combined_rows)
+
+        # Write the shuffled rows to the output file
+        for row in combined_rows:
+            ths.write(row)
+
+        # Print number of rows written
+        b = len(benign_rows)
+        a = len(abnormal_rows)
+        print(f"{name}.csv created with {a + b} rows. ({b} benign and {a} abnormal rows)")
+    return name
 
 # Preprocessing
 
