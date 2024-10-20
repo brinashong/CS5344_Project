@@ -17,13 +17,15 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, VotingClassifier
 from sklearn.neighbors import KNeighborsClassifier
 
-def evaluate(y_test, predictions, heading='-----Evaluation-----'):
+def evaluate(y_test, predictions, heading='-----Evaluation-----', target_dict=None):
     fig, axes = plt.subplots(1, 2, figsize=(12, 6))  # Adjust figure size as needed
     print(heading)
 
     axes[0].set_title('Confusion Matrix')
     cm = confusion_matrix(y_test, predictions)
     categories = np.unique(y_test)
+    if target_dict:
+        categories = target_dict.keys()
     df_cm = pd.DataFrame(cm, index = [i for i in categories], columns = [i for i in categories])
     sns.heatmap(df_cm, annot=True, cmap='Reds', ax=axes[0])
     axes[0].set_xlabel("Predicted")
