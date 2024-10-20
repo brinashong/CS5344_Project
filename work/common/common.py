@@ -19,7 +19,7 @@ from sklearn.neighbors import KNeighborsClassifier
 
 base_path = '/Users/suyeetan/Downloads/CS5344_Project/work/'
 
-def evaluate(y_test, predictions, heading='-----Evaluation-----'):
+def evaluate(y_test, predictions, heading='-----Evaluation-----', target_dict=None):
     fig, axes = plt.subplots(1, 2, figsize=(12, 6))  # Adjust figure size as needed
     print(heading)
 
