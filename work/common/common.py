@@ -11,7 +11,7 @@ import seaborn as sns
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import OneHotEncoder, StandardScaler, LabelEncoder
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
-from sklearn.svm import SVC
+from sklearn.svm import SVC, LinearSVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, VotingClassifier
@@ -104,6 +104,7 @@ def process_csv(csv_file, main_labels, target_column, normal_target, numerical_c
         X_scaled_df[numerical_columns] = scaler.transform(X_scaled_df[numerical_columns])
 
         # Fit SVC if there are samples for the class
+        # svm = LinearSVC(n_jobs=-1)
         svm = SVC()
         knn = KNeighborsClassifier(n_neighbors=5)
         decision_tree = DecisionTreeClassifier()
