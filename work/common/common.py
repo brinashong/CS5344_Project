@@ -17,7 +17,9 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, VotingClassifier
 from sklearn.neighbors import KNeighborsClassifier
 
-def evaluate(y_test, predictions, heading='-----Evaluation-----', target_dict=None):
+base_path = '/Users/suyeetan/Downloads/CS5344_Project/work/'
+
+def evaluate(y_test, predictions, heading='-----Evaluation-----'):
     fig, axes = plt.subplots(1, 2, figsize=(12, 6))  # Adjust figure size as needed
     print(heading)
 
@@ -108,14 +110,14 @@ def process_csv(csv_file, main_labels, target_column, normal_target, numerical_c
         random_forest = RandomForestClassifier(n_estimators=100, random_state=42)
         logistic_regression = LogisticRegression(max_iter=1000)
         gradient_boosting = GradientBoostingClassifier(n_estimators=100, random_state=42)
-        voting_clf = VotingClassifier(estimators=[
-            ('svm', SVC()),
-            ('knn', knn),
-            ('dt', decision_tree),
-            ('rf', random_forest),
-            ('lr', logistic_regression),
-            ('gb', gradient_boosting)
-            ], voting='hard')
+        # voting_clf = VotingClassifier(estimators=[
+        #     ('svm', SVC()),
+        #     ('knn', knn),
+        #     ('dt', decision_tree),
+        #     ('rf', random_forest),
+        #     ('lr', logistic_regression),
+        #     ('gb', gradient_boosting)
+        #     ], voting='hard')
         
         column_indices = df.columns.get_indexer(important_features)
         # print('column_indices', column_indices, df.columns)
@@ -126,11 +128,12 @@ def process_csv(csv_file, main_labels, target_column, normal_target, numerical_c
         if len(y_train_class) > 0:
             # svm.fit(X_train_class, y_train_class)
             svm.fit(X_train_class_scaled, y_train_class)
-            voting_clf.fit(X_train_class_scaled, y_train_class)
+            # voting_clf.fit(X_train_class_scaled, y_train_class)
         else:
             print(f'No data for {label}')
 
-        return label, important_features, svm, impor_bars, voting_clf
+        return label, important_features, svm, impor_bars, None
+        # return label, important_features, svm, impor_bars, voting_clf
     except ValueError as e:
         print(f'csv_file: {csv_file}, error: {e}')
         raise Exception()
