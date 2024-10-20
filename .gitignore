@@ -11,3 +11,4 @@ work/importance_list.csv
 __pycache__/
 work/datasources/cicids/
 work/datasources/wine/
+work/wandb
