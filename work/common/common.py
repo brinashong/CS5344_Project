@@ -252,7 +252,37 @@ def standardise(df, columns, scaler=None):
 def show_missing_values(all_df):
     plt.figure(figsize=(12,4))
     sns.heatmap(all_df.isnull(),cbar=False,cmap='Wistia',yticklabels=False)
-    plt.title('Missing value in the dataset');
+    plt.title('Missing value in the dataset')
+
+def show_boxplots(all_df):
+    l = all_df.columns.values
+    number_of_columns = 5
+    number_of_rows = len(l)//number_of_columns
+    plt.figure(figsize=(20, 5 * number_of_rows))
+    for i in range(0,len(l)):
+        plt.subplot(number_of_rows + 1, number_of_columns, i+1)
+        sns.set_style('whitegrid')
+        sns.boxplot(all_df[l[i]], color='green', orient='v')
+        plt.tight_layout()
+
+def show_distribution_graph(dist_df, dist_col):
+    max_columns = 5
+    number_of_rows = (len(dist_col) + max_columns - 1) // max_columns 
+    plt.figure(figsize=(3 * max_columns, 5 * number_of_rows))
+
+    for i in range(len(dist_col)):
+        plt.subplot(number_of_rows, max_columns, i + 1) 
+        
+        # Use histplot with kde=True to replicate the previous behavior
+        sns.histplot(dist_df[dist_col[i]], kde=True)
+        
+        # Add titles and labels for better readability
+        plt.title(dist_col[i])
+        plt.xlabel(dist_col[i])
+        plt.ylabel('Density')
+
+    plt.tight_layout()
+    plt.show()
 
 def show_target_values(all_df, target_column):
     target_counts = all_df[target_column].value_counts()
@@ -264,8 +294,8 @@ def show_target_values(all_df, target_column):
     target_counts.plot.pie(autopct="%1.1f%%", ax=ax[1])
 
 def show_feature_correlation(all_df):
-    plt.figure(figsize=(20,15))
-    sns.heatmap(all_df.corr(), cmap='hsv')
+    plt.figure(figsize=(8, 5))
+    sns.heatmap(all_df.corr(), cmap='coolwarm')
 
 def show_feature_importance(impor_bars, label, feature_folder):
     plt.rcParams['figure.figsize'] = (10, 5)
