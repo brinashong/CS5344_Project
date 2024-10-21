@@ -19,20 +19,23 @@ from sklearn.neighbors import KNeighborsClassifier
 
 base_path = '/Users/suyeetan/Downloads/CS5344_Project/work/'
 
-def evaluate(y_test, predictions, heading='-----Evaluation-----', target_dict=None):
+def evaluate(y_test, predictions, heading='-----Evaluation-----'):
     fig, axes = plt.subplots(1, 2, figsize=(12, 6))  # Adjust figure size as needed
     print(heading)
 
+    # Confusion matrix
     axes[0].set_title('Confusion Matrix')
     cm = confusion_matrix(y_test, predictions)
-    categories = np.unique(y_test)
-    if target_dict:
-        categories = target_dict.keys()
+    y_test = np.ravel(y_test)
+    predictions = np.ravel(predictions)
+    categories = np.unique(np.concatenate((y_test, predictions)))
+
     df_cm = pd.DataFrame(cm, index = [i for i in categories], columns = [i for i in categories])
     sns.heatmap(df_cm, annot=True, cmap='Reds', ax=axes[0])
     axes[0].set_xlabel("Predicted")
     axes[0].set_ylabel("Actual")
-    
+
+    # Classification report
     axes[1].set_title('Classification Report')
     cr = classification_report(y_test, predictions, output_dict=True)
     sns.heatmap(pd.DataFrame(cr).iloc[:-1, :].T, annot=True, ax=axes[1], fmt='.3f')
