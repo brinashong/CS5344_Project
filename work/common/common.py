@@ -4,8 +4,6 @@ import os
 import random
 import glob
 import pandas as pd
-import time
-import sklearn as sk
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.ensemble import RandomForestRegressor
