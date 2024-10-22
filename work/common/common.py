@@ -17,6 +17,39 @@ from sklearn.neighbors import KNeighborsClassifier
 
 base_path = '/Users/suyeetan/Downloads/CS5344_Project/work/'
 
+def wandb_log(conf_matrix, class_report, acc_score):
+    wandb.log({
+        "Accuracy Score": acc_score
+    })
+        
+    # Create a table for classification metrics
+    class_report_table = wandb.Table(columns=["class", "precision", "recall", "f1-score", "support"])
+    
+    # Populate the table
+    for class_name, metrics in class_report.items():
+        if class_name not in ['accuracy', 'macro avg', 'weighted avg']:  # Skip overall avg metrics
+            class_report_table.add_data(
+                class_name, 
+                metrics["precision"], 
+                metrics["recall"], 
+                metrics["f1-score"], 
+                metrics["support"]
+            )
+    
+    # Log the table to WandB
+    wandb.log({"Classification Report": class_report_table})
+    
+    # You can also log the metrics separately if needed (for overall comparison/graphing)
+    wandb.log({
+        "precision_avg": class_report["weighted avg"]["precision"],
+        "recall_avg": class_report["weighted avg"]["recall"],
+        "f1-score_avg": class_report["weighted avg"]["f1-score"]
+    })
+
+    # Convert confusion matrix into a DataFrame for better clarity
+    conf_df = pd.DataFrame(conf_matrix)
+    wandb.log({"Confusion Matrix": wandb.Table(dataframe=conf_df)})
+
 def evaluate(y_test, predictions, heading='-----Evaluation-----'):
     fig, axes = plt.subplots(1, 2, figsize=(12, 6))  # Adjust figure size as needed
     print(heading)
@@ -44,7 +77,7 @@ def evaluate(y_test, predictions, heading='-----Evaluation-----'):
 
     acc = accuracy_score(y_test, predictions)
     print("Accuracy:", acc)
-    return (cm, cr, acc)
+    wandb_log(cm, cr, acc)
 
 def remove_files_from_directory(directory):
     # Get all files in the directory
@@ -316,36 +349,3 @@ def show_feature_importance(impor_bars, label, feature_folder):
     plt.savefig(os.path.join(feature_folder, label+".pdf"),bbox_inches='tight', format = 'pdf')
     plt.tight_layout()
     plt.show()
-
-def wandb_log(conf_matrix, class_report, acc_score):
-    wandb.log({
-        "Accuracy Score": acc_score
-    })
-        
-    # Create a table for classification metrics
-    class_report_table = wandb.Table(columns=["class", "precision", "recall", "f1-score", "support"])
-    
-    # Populate the table
-    for class_name, metrics in class_report.items():
-        if class_name not in ['accuracy', 'macro avg', 'weighted avg']:  # Skip overall avg metrics
-            class_report_table.add_data(
-                class_name, 
-                metrics["precision"], 
-                metrics["recall"], 
-                metrics["f1-score"], 
-                metrics["support"]
-            )
-    
-    # Log the table to WandB
-    wandb.log({"Classification Report": class_report_table})
-    
-    # You can also log the metrics separately if needed (for overall comparison/graphing)
-    wandb.log({
-        "precision_avg": class_report["weighted avg"]["precision"],
-        "recall_avg": class_report["weighted avg"]["recall"],
-        "f1-score_avg": class_report["weighted avg"]["f1-score"]
-    })
-
-    # Convert confusion matrix into a DataFrame for better clarity
-    conf_df = pd.DataFrame(conf_matrix)
-    wandb.log({"Confusion Matrix": wandb.Table(dataframe=conf_df)})
