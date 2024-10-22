@@ -294,7 +294,7 @@ def show_target_values(all_df, target_column):
     target_counts.plot.pie(autopct="%1.1f%%", ax=ax[1])
 
 def show_feature_correlation(all_df):
-    plt.figure(figsize=(8, 5))
+    plt.figure(figsize=(18, 15))
     sns.heatmap(all_df.corr(), cmap='coolwarm')
 
 def show_feature_importance(impor_bars, label, feature_folder):
