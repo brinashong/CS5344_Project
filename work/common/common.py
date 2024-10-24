@@ -15,7 +15,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, VotingClassifier
 from sklearn.neighbors import KNeighborsClassifier
 
-base_path = '/Users/suyeetan/Downloads/CS5344_Project/work/'
+base_path = '/Users/bytedance/Downloads/CS5344_Project/work/'
 
 def wandb_log(conf_matrix, class_report, acc_score):
     wandb.log({
@@ -101,20 +101,12 @@ def get_anomaly_X_y_from_csv(csv_file, main_labels, target_column, normal_target
             anomaly_or_not.append(0)           
     df[target_column]=anomaly_or_not
 
-    # y = df[target_column].values
-    # del df[target_column]
-    # X = df.values
     y_df = df[target_column]
     X_df = df.drop(columns=[target_column])
     
-    # X = np.float32(X)
-    # X[np.isnan(X)] = 0
-    # X[np.isinf(X)] = 0
-    # print('X', type(X), X)
-    # print('y', type(y), y)
     return (X_df, y_df, df)
 
-def process_csv(csv_file, main_labels, target_column, normal_target, numerical_columns, output_folder, scaler):
+def process_csv_with_args(csv_file, main_labels, target_column, normal_target, numerical_columns, output_folder, scaler):
     print('Processing CSV file:', csv_file)
 
     X_df, y_df, df = get_anomaly_X_y_from_csv(csv_file, main_labels, target_column, normal_target, output_folder)
