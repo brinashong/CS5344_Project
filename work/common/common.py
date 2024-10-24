@@ -140,7 +140,7 @@ def process_csv(csv_file, main_labels, target_column, normal_target, numerical_c
         # Fit SVC if there are samples for the class
         # svm = LinearSVC(n_jobs=-1)
         svm = SVC()
-        knn = KNeighborsClassifier(n_neighbors=5)
+        knn = KNeighborsClassifier(weights='distance', n_jobs=-1)
         decision_tree = DecisionTreeClassifier()
         random_forest = RandomForestClassifier(n_estimators=100, random_state=42)
         logistic_regression = LogisticRegression(max_iter=1000)
@@ -162,13 +162,12 @@ def process_csv(csv_file, main_labels, target_column, normal_target, numerical_c
 
         if len(y_train_class) > 0:
             # svm.fit(X_train_class, y_train_class)
-            svm.fit(X_train_class_scaled, y_train_class)
+            knn.fit(X_train_class_scaled, y_train_class)
             # voting_clf.fit(X_train_class_scaled, y_train_class)
         else:
             print(f'No data for {label}')
 
-        return label, important_features, svm, impor_bars, None
-        # return label, important_features, svm, impor_bars, voting_clf
+        return label, important_features, knn, impor_bars
     except ValueError as e:
         print(f'csv_file: {csv_file}, error: {e}')
         raise Exception()
