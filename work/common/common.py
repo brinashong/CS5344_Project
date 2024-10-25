@@ -131,31 +131,17 @@ def process_csv_with_args(csv_file, main_labels, target_column, normal_target, n
 
         # Fit SVC if there are samples for the class
         # svm = LinearSVC(n_jobs=-1)
-        svm = SVC()
+        # svm = SVC()
         knn = KNeighborsClassifier(weights='distance', n_jobs=-1)
-        decision_tree = DecisionTreeClassifier()
-        random_forest = RandomForestClassifier(n_estimators=100, random_state=42)
-        logistic_regression = LogisticRegression(max_iter=1000)
-        gradient_boosting = GradientBoostingClassifier(n_estimators=100, random_state=42)
-        # voting_clf = VotingClassifier(estimators=[
-        #     ('svm', SVC()),
-        #     ('knn', knn),
-        #     ('dt', decision_tree),
-        #     ('rf', random_forest),
-        #     ('lr', logistic_regression),
-        #     ('gb', gradient_boosting)
-        #     ], voting='hard')
         
         column_indices = df.columns.get_indexer(important_features)
-        # print('column_indices', column_indices, df.columns)
-        X_train_class = df.iloc[:, column_indices]
+        # X_train_class = df.iloc[:, column_indices]
         X_train_class_scaled = X_scaled_df.iloc[:, column_indices]
         y_train_class = y_df
 
         if len(y_train_class) > 0:
             # svm.fit(X_train_class, y_train_class)
             knn.fit(X_train_class_scaled, y_train_class)
-            # voting_clf.fit(X_train_class_scaled, y_train_class)
         else:
             print(f'No data for {label}')
 
