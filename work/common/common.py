@@ -127,14 +127,15 @@ def process_csv_with_args(csv_file, main_labels, target_column, normal_target, n
 
         # Scale numerical columns
         X_scaled_df = X_df.copy()
-        X_scaled_df[numerical_columns] = scaler.transform(X_scaled_df[numerical_columns])
+        if len(numerical_columns) > 0:
+            X_scaled_df[numerical_columns] = scaler.transform(X_scaled_df[numerical_columns])
 
         # Fit SVC if there are samples for the class
         # svm = LinearSVC(n_jobs=-1)
         # svm = SVC()
         knn = KNeighborsClassifier(weights='distance', n_jobs=-1)
         
-        column_indices = df.columns.get_indexer(important_features)
+        column_indices = X_df.columns.get_indexer(important_features)
         # X_train_class = df.iloc[:, column_indices]
         X_train_class_scaled = X_scaled_df.iloc[:, column_indices]
         y_train_class = y_df
@@ -248,7 +249,8 @@ def label_encode(df, columns):
 
 def standardise(df, columns, scaler=None):
     X_standardised = df.copy()
-    
+    if not columns:
+        return None, X_standardised
     if not scaler:
         scaler = StandardScaler()
         # Fit and transform the numeric columns
