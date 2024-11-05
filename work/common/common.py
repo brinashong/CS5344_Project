@@ -15,7 +15,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, VotingClassifier
 from sklearn.neighbors import KNeighborsClassifier
 
-base_path = '/Users/suyeetan/Downloads/CS5344_Project/work/'
+base_path = '/home/brina/nus-mcomp/sem2/cs5344-big-data-analytics-technology/CS5344_Project.git/sy/work'
 
 def wandb_log(conf_matrix, class_report, acc_score):
     wandb.log({
