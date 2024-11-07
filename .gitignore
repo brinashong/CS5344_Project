@@ -13,4 +13,5 @@ work/datasources/cicids/
 work/datasources/wine/
 work/datasources/botnet/
 work/datasources/tii-ssrc/
+work/datasources/ctu13/
 work/wandb/
