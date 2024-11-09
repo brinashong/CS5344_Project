@@ -2,3 +2,16 @@
 Data/
 work/csv_files
 work/features
+.DS_Store
+venv/
+work/features/
+work/csv_files/
+work/all_data.csv
+work/importance_list.csv
+__pycache__/
+work/datasources/cicids/
+work/datasources/wine/
+work/datasources/botnet/
+work/datasources/tii-ssrc/
+work/datasources/ctu13/
+work/wandb/
