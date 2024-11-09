@@ -6,28 +6,23 @@ import glob
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import OneHotEncoder, StandardScaler, LabelEncoder
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
-from sklearn.svm import SVC, LinearSVC
-from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, VotingClassifier
+from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
 
-base_path = '/home/brina/nus-mcomp/sem2/cs5344-big-data-analytics-technology/CS5344_Project.git/master/work'
+base_path = '/Users/suyeetan/Downloads/CS5344_Project/work/'
 
 def wandb_log(conf_matrix, class_report, acc_score):
     wandb.log({
         "Accuracy Score": acc_score
     })
         
-    # Create a table for classification metrics
     class_report_table = wandb.Table(columns=["class", "precision", "recall", "f1-score", "support"])
     
-    # Populate the table
     for class_name, metrics in class_report.items():
-        if class_name not in ['accuracy', 'macro avg', 'weighted avg']:  # Skip overall avg metrics
+        if class_name not in ['accuracy', 'macro avg', 'weighted avg']:
             class_report_table.add_data(
                 class_name, 
                 metrics["precision"], 
@@ -36,22 +31,19 @@ def wandb_log(conf_matrix, class_report, acc_score):
                 metrics["support"]
             )
     
-    # Log the table to WandB
     wandb.log({"Classification Report": class_report_table})
     
-    # You can also log the metrics separately if needed (for overall comparison/graphing)
     wandb.log({
         "precision_avg": class_report["weighted avg"]["precision"],
         "recall_avg": class_report["weighted avg"]["recall"],
         "f1-score_avg": class_report["weighted avg"]["f1-score"]
     })
 
-    # Convert confusion matrix into a DataFrame for better clarity
     conf_df = pd.DataFrame(conf_matrix)
     wandb.log({"Confusion Matrix": wandb.Table(dataframe=conf_df)})
 
 def evaluate(y_test, predictions, heading='-----Evaluation-----'):
-    fig, axes = plt.subplots(1, 2, figsize=(12, 6))  # Adjust figure size as needed
+    fig, axes = plt.subplots(1, 2, figsize=(12, 6))
     print(heading)
 
     # Confusion matrix
@@ -72,7 +64,7 @@ def evaluate(y_test, predictions, heading='-----Evaluation-----'):
     sns.heatmap(pd.DataFrame(cr).iloc[:-1, :].T, annot=True, ax=axes[1], fmt='.3f')
 
     # Display the subplots
-    plt.tight_layout()  # Adjust layout to prevent overlap
+    plt.tight_layout()
     plt.show()
 
     acc = accuracy_score(y_test, predictions)
@@ -90,26 +82,26 @@ def remove_files_from_directory(directory):
     
     print(f"All files in {directory} have been removed.")
 
-def get_anomaly_X_y_from_csv(csv_file, main_labels, target_column, normal_target, output_folder):
+def get_minor_X_y_from_csv(csv_file, main_labels, target_column, normal_target, output_folder):
     df = pd.read_csv(os.path.join(output_folder, csv_file),usecols=main_labels)
     df = df.fillna(0)
-    anomaly_or_not=[]
-    for i in df[target_column]: #it changes the normal label to "1" and the anomaly tag to "0" for use in the machine learning algorithm
+    minor_or_not=[]
+    for i in df[target_column]:
         if i == normal_target:
-            anomaly_or_not.append(1)
+            minor_or_not.append(1)
         else:
-            anomaly_or_not.append(0)           
-    df[target_column]=anomaly_or_not
+            minor_or_not.append(0)           
+    df[target_column]=minor_or_not
 
     y_df = df[target_column]
     X_df = df.drop(columns=[target_column])
     
-    return (X_df, y_df, df)
+    return (X_df, y_df)
 
 def process_csv_with_args(csv_file, main_labels, target_column, normal_target, numerical_columns, output_folder, scaler, modelname):
     print('Processing CSV file:', csv_file)
 
-    X_df, y_df, df = get_anomaly_X_y_from_csv(csv_file, main_labels, target_column, normal_target, output_folder)
+    X_df, y_df = get_minor_X_y_from_csv(csv_file, main_labels, target_column, normal_target, output_folder)
 
     try:
         # Compute feature importances
@@ -138,7 +130,6 @@ def process_csv_with_args(csv_file, main_labels, target_column, normal_target, n
             raise Exception(f"{modelname} is not supported")
         
         column_indices = X_df.columns.get_indexer(important_features)
-        # X_train_class = df.iloc[:, column_indices]
         X_train_class_scaled = X_scaled_df.iloc[:, column_indices]
         y_train_class = y_df
 
@@ -152,21 +143,20 @@ def process_csv_with_args(csv_file, main_labels, target_column, normal_target, n
         print(f'csv_file: {csv_file}, error: {e}')
         raise Exception()
 
-def create_dataset_for_label(label, name, benign, abnormal_type_dict, benign_ratio, min_benign_samples, all_df, target_index, TARGET_COLUMN, NORMAL_TARGET, OUTPUT_FOLDER, main_labels):
-    a, b = 0, 0  # Track abnormal and benign sample counts
+def create_dataset_for_label(label, name, major, minor_type_dict, major_ratio, min_major_samples, all_df, target_index, TARGET_COLUMN, NORMAL_TARGET, OUTPUT_FOLDER, main_labels):
+    minor_count, major_count = 0, 0
     
-    # Open the output file for writing
     output_path = os.path.join(OUTPUT_FOLDER, f"{name}.csv")
     with open(output_path, "w") as ths:
         ths.write(','.join(main_labels) + "\n")
         
-        # Calculate the number of benign samples based on the fixed ratio
-        abnormal_count = abnormal_type_dict[label]
-        benign_num = max(min(int(abnormal_count * benign_ratio), benign), min_benign_samples)
+        # Calculate the number of major samples based on the fixed ratio
+        minor_dict_count = minor_type_dict[label]
+        major_num = max(min(int(minor_dict_count * major_ratio), major), min_major_samples)
         
-        # Collect normal (benign) rows and abnormal rows
-        benign_rows = []
-        abnormal_rows = []
+        # Collect normal (major) rows and minor rows
+        major_rows = []
+        minor_rows = []
 
         # Read all_data.csv line by line and collect rows
         with open("all_data.csv", "r") as file:
@@ -177,20 +167,20 @@ def create_dataset_for_label(label, name, benign, abnormal_type_dict, benign_rat
                 
                 # Collect normal rows
                 if int(k[target_index]) == NORMAL_TARGET:
-                    benign_rows.append(line)
+                    major_rows.append(line)
                 
-                # Collect abnormal rows that match the current label
+                # Collect minor rows that match the current label
                 elif int(k[target_index]) == label:
-                    abnormal_rows.append(line)
+                    minor_rows.append(line)
 
-        # Randomly sample benign rows
-        if len(benign_rows) > benign_num:
-            benign_rows = random.sample(benign_rows, benign_num)
+        # Randomly sample major rows
+        if len(major_rows) > major_num:
+            major_rows = random.sample(major_rows, major_num)
         else:
-            benign_rows = random.sample(benign_rows, len(benign_rows))  # Shuffle if fewer than required
+            major_rows = random.sample(major_rows, len(major_rows))  # Shuffle if fewer than required
 
-        # Concatenate benign and abnormal rows
-        combined_rows = benign_rows + abnormal_rows
+        # Concatenate major and minor rows
+        combined_rows = major_rows + minor_rows
         
         # Shuffle the combined rows
         random.shuffle(combined_rows)
@@ -200,22 +190,21 @@ def create_dataset_for_label(label, name, benign, abnormal_type_dict, benign_rat
             ths.write(row)
 
         # Print number of rows written
-        b = len(benign_rows)
-        a = len(abnormal_rows)
-        print(f"{name}.csv created with {a + b} rows. ({b} benign and {a} abnormal rows)")
+        major_count = len(major_rows)
+        minor_count = len(minor_rows)
+        print(f"{name}.csv created with {major_count + minor_count} rows. ({major_count} major and {minor_count} minor rows)")
     return name
 
 def get_dataset_for_label(label, name, target_index, NORMAL_TARGET, OUTPUT_FOLDER, main_labels):
-    a, b = 0, 0  # Track abnormal and benign sample counts
+    minor_count, major_count = 0, 0  # Track minor and major sample counts
     
-    # Open the output file for writing
     output_path = os.path.join(OUTPUT_FOLDER, f"{name}.csv")
     with open(output_path, "w") as ths:
         ths.write(','.join(main_labels) + "\n")
         
-        # Collect normal (benign) rows and abnormal rows
-        benign_rows = []
-        abnormal_rows = []
+        # Collect normal (major) rows and minor rows
+        major_rows = []
+        minor_rows = []
 
         # Read all_data.csv line by line and collect rows
         with open("all_data.csv", "r") as file:
@@ -226,14 +215,14 @@ def get_dataset_for_label(label, name, target_index, NORMAL_TARGET, OUTPUT_FOLDE
                 
                 # Collect normal rows
                 if int(k[target_index]) == NORMAL_TARGET:
-                    benign_rows.append(line)
+                    major_rows.append(line)
                 
-                # Collect abnormal rows that match the current label
+                # Collect minor rows that match the current label
                 elif int(k[target_index]) == label:
-                    abnormal_rows.append(line)
+                    minor_rows.append(line)
 
-        # Concatenate benign and abnormal rows
-        combined_rows = benign_rows + abnormal_rows
+        # Concatenate major and minor rows
+        combined_rows = major_rows + minor_rows
         
         # Shuffle the combined rows
         random.shuffle(combined_rows)
@@ -243,45 +232,28 @@ def get_dataset_for_label(label, name, target_index, NORMAL_TARGET, OUTPUT_FOLDE
             ths.write(row)
 
         # Print number of rows written
-        b = len(benign_rows)
-        a = len(abnormal_rows)
-        print(f"{name}.csv created with {a + b} rows. ({b} benign and {a} abnormal rows)")
+        major_count = len(major_rows)
+        minor_count = len(minor_rows)
+        print(f"{name}.csv created with {major_count + minor_count} rows. ({major_count} major and {minor_count} minor rows)")
     return name
 
 # Preprocessing
 
 def one_hot_encode(df, categorical_columns):
-    # Initialize the OneHotEncoder
     ohe = OneHotEncoder(sparse_output=False, handle_unknown='ignore')
     
-    # Create a copy of the DataFrame for encoding
     X_encoded = df.copy()
-    
-    # List to store the one-hot encoded DataFrames
     encoded_dfs = []
     
-    # Loop over categorical columns to encode them
     for col in categorical_columns:
-        # Fit and transform the column with one-hot encoding
         encoded_array = ohe.fit_transform(X_encoded[[col]])
-        
-        # Create a DataFrame for the one-hot encoded columns
         encoded_columns = ohe.get_feature_names_out([col])
         encoded_df = pd.DataFrame(encoded_array, columns=encoded_columns, index=X_encoded.index)
-        
-        # Append the encoded DataFrame to the list
         encoded_dfs.append(encoded_df)
     
-    # Drop the original categorical columns from the DataFrame
     X_encoded = X_encoded.drop(columns=categorical_columns)
-    
-    # Concatenate the original DataFrame (without categorical columns) with the encoded DataFrames
     X_encoded = pd.concat([X_encoded] + encoded_dfs, axis=1)
-    
-    # Ensure the DataFrame is de-fragmented by making a copy
     X_encoded = X_encoded.copy()
-    
-    # print(list(X_encoded.columns))
     return (ohe, X_encoded)
 
 def label_encode(df, columns):
@@ -297,7 +269,6 @@ def standardise(df, columns, scaler=None):
         return None, X_standardised
     if not scaler:
         scaler = StandardScaler()
-        # Fit and transform the numeric columns
         X_standardised[columns] = scaler.fit_transform(X_standardised[columns])
     else:
         X_standardised[columns] = scaler.transform(X_standardised[columns])
@@ -329,10 +300,8 @@ def show_distribution_graph(dist_df, dist_col):
     for i in range(len(dist_col)):
         plt.subplot(number_of_rows, max_columns, i + 1) 
         
-        # Use histplot with kde=True to replicate the previous behavior
         sns.histplot(dist_df[dist_col[i]], kde=True)
         
-        # Add titles and labels for better readability
         plt.title(dist_col[i])
         plt.xlabel(dist_col[i])
         plt.ylabel('Density')
