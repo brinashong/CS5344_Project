@@ -15,7 +15,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, VotingClassifier
 from sklearn.neighbors import KNeighborsClassifier
 
-base_path = '/Users/suyeetan/Downloads/CS5344_Project/work/'
+base_path = '/home/brina/nus-mcomp/sem2/cs5344-big-data-analytics-technology/CS5344_Project.git/master/work'
 
 def wandb_log(conf_matrix, class_report, acc_score):
     wandb.log({
@@ -113,7 +113,8 @@ def process_csv_with_args(csv_file, main_labels, target_column, normal_target, n
 
     try:
         # Compute feature importances
-        forest = RandomForestRegressor(n_estimators=250, random_state=0)
+        # forest = RandomForestRegressor(n_estimators=250, random_state=0)
+        forest = RandomForestClassifier(n_estimators=100, random_state=42, n_jobs=-1)
         forest.fit(X_df, y_df)
         importances = forest.feature_importances_
         label = csv_file.split(".")[0]
@@ -187,6 +188,49 @@ def create_dataset_for_label(label, name, benign, abnormal_type_dict, benign_rat
             benign_rows = random.sample(benign_rows, benign_num)
         else:
             benign_rows = random.sample(benign_rows, len(benign_rows))  # Shuffle if fewer than required
+
+        # Concatenate benign and abnormal rows
+        combined_rows = benign_rows + abnormal_rows
+        
+        # Shuffle the combined rows
+        random.shuffle(combined_rows)
+
+        # Write the shuffled rows to the output file
+        for row in combined_rows:
+            ths.write(row)
+
+        # Print number of rows written
+        b = len(benign_rows)
+        a = len(abnormal_rows)
+        print(f"{name}.csv created with {a + b} rows. ({b} benign and {a} abnormal rows)")
+    return name
+
+def get_dataset_for_label(label, name, target_index, NORMAL_TARGET, OUTPUT_FOLDER, main_labels):
+    a, b = 0, 0  # Track abnormal and benign sample counts
+    
+    # Open the output file for writing
+    output_path = os.path.join(OUTPUT_FOLDER, f"{name}.csv")
+    with open(output_path, "w") as ths:
+        ths.write(','.join(main_labels) + "\n")
+        
+        # Collect normal (benign) rows and abnormal rows
+        benign_rows = []
+        abnormal_rows = []
+
+        # Read all_data.csv line by line and collect rows
+        with open("all_data.csv", "r") as file:
+            for i, line in enumerate(file):
+                if i == 0:
+                    continue  # Skip the header row
+                k = line.strip().split(",")  # Strip newline and split the line
+                
+                # Collect normal rows
+                if int(k[target_index]) == NORMAL_TARGET:
+                    benign_rows.append(line)
+                
+                # Collect abnormal rows that match the current label
+                elif int(k[target_index]) == label:
+                    abnormal_rows.append(line)
 
         # Concatenate benign and abnormal rows
         combined_rows = benign_rows + abnormal_rows
