@@ -15,7 +15,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, VotingClassifier
 from sklearn.neighbors import KNeighborsClassifier
 
-base_path = '/Users/suyeetan/Downloads/CS5344_Project/work/'
+base_path = '/home/brina/nus-mcomp/sem2/cs5344-big-data-analytics-technology/CS5344_Project.git/master/work'
 
 def wandb_log(conf_matrix, class_report, acc_score):
     wandb.log({
@@ -106,14 +106,13 @@ def get_anomaly_X_y_from_csv(csv_file, main_labels, target_column, normal_target
     
     return (X_df, y_df, df)
 
-def process_csv_with_args(csv_file, main_labels, target_column, normal_target, numerical_columns, output_folder, scaler):
+def process_csv_with_args(csv_file, main_labels, target_column, normal_target, numerical_columns, output_folder, scaler, modelname):
     print('Processing CSV file:', csv_file)
 
     X_df, y_df, df = get_anomaly_X_y_from_csv(csv_file, main_labels, target_column, normal_target, output_folder)
 
     try:
         # Compute feature importances
-        # forest = RandomForestRegressor(n_estimators=250, random_state=0)
         forest = RandomForestClassifier(n_estimators=100, random_state=42, n_jobs=-1)
         forest.fit(X_df, y_df)
         importances = forest.feature_importances_
@@ -131,10 +130,12 @@ def process_csv_with_args(csv_file, main_labels, target_column, normal_target, n
         if len(numerical_columns) > 0:
             X_scaled_df[numerical_columns] = scaler.transform(X_scaled_df[numerical_columns])
 
-        # Fit SVC if there are samples for the class
-        # svm = LinearSVC(n_jobs=-1)
-        # svm = SVC()
-        knn = KNeighborsClassifier(weights='distance', n_jobs=-1)
+        if modelname == "svm":
+            model = SVC()
+        elif modelname == "knn":
+            model = KNeighborsClassifier(weights='distance', n_jobs=-1)
+        else:
+            raise Exception(f"{modelname} is not supported")
         
         column_indices = X_df.columns.get_indexer(important_features)
         # X_train_class = df.iloc[:, column_indices]
@@ -142,12 +143,11 @@ def process_csv_with_args(csv_file, main_labels, target_column, normal_target, n
         y_train_class = y_df
 
         if len(y_train_class) > 0:
-            # svm.fit(X_train_class, y_train_class)
-            knn.fit(X_train_class_scaled, y_train_class)
+            model.fit(X_train_class_scaled, y_train_class)
         else:
             print(f'No data for {label}')
 
-        return label, important_features, knn, impor_bars
+        return label, important_features, model, impor_bars
     except ValueError as e:
         print(f'csv_file: {csv_file}, error: {e}')
         raise Exception()
