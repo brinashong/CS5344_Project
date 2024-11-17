@@ -12,7 +12,7 @@ from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
 
-base_path = '/home/brina/nus-mcomp/sem2/cs5344-big-data-analytics-technology/CS5344_Project/work'
+base_path = '/Users/suyeetan/Downloads/CS5344_Project/work'
 
 def wandb_log(conf_matrix, class_report, acc_score):
     wandb.log({
