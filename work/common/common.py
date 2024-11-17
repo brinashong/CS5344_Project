@@ -98,7 +98,7 @@ def get_minor_X_y_from_csv(csv_file, main_labels, target_column, normal_target, 
     
     return (X_df, y_df)
 
-def process_csv_with_args(csv_file, main_labels, target_column, normal_target, numerical_columns, output_folder, scaler, modelname):
+def process_csv_with_args(csv_file, main_labels, target_column, normal_target, numerical_columns, output_folder, top_features_num, scaler, model_name):
     print('Processing CSV file:', csv_file)
 
     X_df, y_df = get_minor_X_y_from_csv(csv_file, main_labels, target_column, normal_target, output_folder)
@@ -114,7 +114,7 @@ def process_csv_with_args(csv_file, main_labels, target_column, normal_target, n
         refclasscol = list(X_df.columns.values)
         impor_bars = pd.DataFrame({'Features': refclasscol[0:20], 'importance': importances[0:20]})
         impor_bars = impor_bars.sort_values('importance', ascending=False)
-        important_features = impor_bars['Features'].to_list()[:5]
+        important_features = impor_bars['Features'].to_list()[:top_features_num]
         impor_bars = impor_bars.set_index('Features')
 
         # Scale numerical columns
@@ -122,12 +122,12 @@ def process_csv_with_args(csv_file, main_labels, target_column, normal_target, n
         if len(numerical_columns) > 0:
             X_scaled_df[numerical_columns] = scaler.transform(X_scaled_df[numerical_columns])
 
-        if modelname == "svm":
+        if model_name == "svm":
             model = SVC()
-        elif modelname == "knn":
+        elif model_name == "knn":
             model = KNeighborsClassifier(weights='distance', n_jobs=-1)
         else:
-            raise Exception(f"{modelname} is not supported")
+            raise Exception(f"{model_name} is not supported")
         
         column_indices = X_df.columns.get_indexer(important_features)
         X_train_class_scaled = X_scaled_df.iloc[:, column_indices]
